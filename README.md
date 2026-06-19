@@ -41,6 +41,8 @@ USB‑A‑Buchse anlöten und im Sketch `BOARD_ESP32S3_USB_OTG 0` setzen.
 
 LED‑Daten an `LED_PIN` (Default 21 — freien Pin laut Board‑Pinout wählen), gemeinsame Masse.
 
+📋 **Ausführliche Schritt‑für‑Schritt‑[Bauanleitung](BAUANLEITUNG.md)** (Verdrahtung, Strombudget, Troubleshooting).
+
 ## Build (Arduino IDE)
 1. Boardpaket **„esp32 by Espressif" ≥ 3.0.0**, Board: **ESP32S3 Dev Module**.
 2. **Tools → USB Mode → „USB Host"**.
