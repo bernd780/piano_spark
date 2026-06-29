@@ -47,19 +47,32 @@ Automatische MQTT Discovery — das Klavier erscheint als Device mit:
 
 | Teil | Empfehlung |
 |---|---|
-| Controller | **ESP32-S3 DevKitC** (USB-Host-faehig, OTG-Jumper gebrueckt) |
+| Controller | **YD-ESP32-S3** (DevKitC-1-Klon mit CH343 UART, USB-OTG-Loetjumper) |
 | LEDs | **WS2812B** (oder SK6812 RGBW), 60-81 LEDs |
 | Netzteil | **5 V / 2 A** (FastLED begrenzt auf 1600 mA per Software) |
-| USB | **USB-A-Buchse** → per A-B-Kabel ans Klavier |
+| USB-Kabel | **USB-C-auf-B-Kabel** direkt vom ESP zum "To Host"-Port am Klavier |
 
 ### Pinbelegung (YD-ESP32-S3)
-| Anschluss | GPIO |
+| Anschluss | GPIO / Port |
 |---|---|
-| LED-Daten (WS2812B) | 21 |
-| USB D- (zum Klavier) | 19 |
-| USB D+ (zum Klavier) | 20 |
+| LED-Daten (WS2812B) | GPIO 21 |
+| USB zum Klavier | **Native USB-C-Buchse** (D-=GPIO19, D+=GPIO20) |
+| Flashen / Serial Monitor | **UART-USB-C-Buchse** (CH343, COM-Port am PC) |
 
-**Wichtig:** Der ESP32-S3 liefert **kein VBUS** an der nativen USB-Buchse. Die 5 V fuer das Klavier muessen **extern** eingespeist werden (vom Netzteil auf den VBUS-Pin der USB-A-Buchse).
+### USB-OTG-Loetjumper (zwingend erforderlich!)
+
+Die native USB-C-Buchse des ESP32-S3 ist im Auslieferungszustand eine **Device-Buchse** und liefert
+**kein VBUS**. Ohne VBUS erkennt das Klavier keinen USB-Host — es passiert einfach nichts.
+
+Auf der **Rueckseite** des YD-ESP32-S3 befindet sich ein kleiner Loetjumper mit der Beschriftung
+**"USB-OTG"**. Dieser muss mit einem Tropfen Loetzinn **gebrueckt** werden. Er verbindet die 5V-Leitung
+(vom UART-Port bzw. Netzteil) mit dem VBUS-Pin der nativen USB-Buchse.
+
+> **Achtung:** Den daneben liegenden Jumper **"IN-OUT" NICHT** anruehren — der ist fuer die
+> Stromversorgungsrichtung und kann das Board beschaedigen wenn falsch gesetzt.
+
+Nach dem Loeten das **USB-C-auf-B-Kabel** direkt in die native USB-C-Buchse stecken und zum
+Klavier fuehren. Kein Adapter, keine externe USB-A-Buchse noetig.
 
 ## How To
 
@@ -112,13 +125,13 @@ pio run -t upload --upload-port kawai-klavier.local
 Nach dem Boot verbindet sich der ESP mit WLAN und MQTT. In Home Assistant erscheint automatisch ein neues Device **"Kawai Klavier"** mit allen Sensoren, Reglern und Buttons. Keine manuelle Konfiguration noetig.
 
 ### 7. Hardware zusammenbauen
-1. **LED-Streifen** an GPIO 21 + GND + 5V vom Netzteil
-2. **USB-A-Buchse** an GPIO 19 (D-), GPIO 20 (D+), GND, und **5V vom Netzteil auf VBUS**
-3. **USB-A-auf-B-Kabel** von der Buchse zum "To Host"-Port am Klavier
-4. ESP32 per Netzteil (oder USB) mit Strom versorgen
+1. **USB-OTG-Loetjumper** auf der Rueckseite des YD-ESP32-S3 zuloeten (siehe oben)
+2. **LED-Streifen** an GPIO 21 + GND + 5V vom Netzteil
+3. **USB-C-auf-B-Kabel** von der nativen USB-C-Buchse zum "To Host"-Port am Klavier
+4. ESP32 per UART-Buchse (Laptop) oder Netzteil mit Strom versorgen
 
 ### Troubleshooting
-- **Klavier wird nicht erkannt:** VBUS (5V) an der USB-A-Buchse pruefen. Ohne externe 5V erkennt das Klavier keinen Host.
+- **Klavier wird nicht erkannt:** USB-OTG-Loetjumper auf der Rueckseite pruefen — ohne ihn liefert die native Buchse kein VBUS und das Klavier meldet sich nicht an.
 - **LEDs falsch herum:** `LED_REVERSED` auf 1 setzen.
 - **MQTT verbindet nicht:** Serial Monitor (115200 Baud) pruefen — WLAN-Status und MQTT-Verbindung werden geloggt.
 - **OTA schlaegt fehl:** ESP muss im gleichen Netz sein. `ping kawai-klavier.local` testen.
