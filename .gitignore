@@ -10,3 +10,6 @@ build/
 .vscode/
 .idea/
 *.swp
+
+# Secrets
+src/secrets.h
